@@ -1,68 +1,92 @@
-# OBLITERATUS // Quasar Agent-OS — OBI Shell
+# OBLITERATUS // Quasar Agent-OS — OBI
 
-A phone-first **agent-OS shell** for **OBI (Obliteratus)** — Sean's reverse-engineering &
-personal-security harness. The visual identity is a **quasar**: an onyx-black event horizon,
-a rotating gold accretion disk, gravitational-lensing violet, cream/tan text, glassmorphism.
+A phone-first **agent-OS** for **OBI (Obliteratus)** — Sean's reverse-engineering &
+personal-security harness. Onyx-black event horizon, rotating gold accretion disk,
+gravitational-lensing violet, cream/tan text, glassmorphism.
 
-`index.html` is a **fully self-contained, offline prototype** — open it directly in any
-browser (or add it to your home screen on Android/iOS for a Gemini-style app feel).
+This is a **complete two-piece system**:
 
----
-
-## What is real right now (no backend required)
-
-| Feature | Status | How |
-| --- | --- | --- |
-| Quasar / event-horizon UI | ✅ live | Canvas accretion disk + lensing, reduced-motion aware |
-| Chat interface | ✅ live | Local OBI persona + themed replies |
-| **`/scan /sescan /mcpscan`** | ✅ live | Real pattern scanners **ported from OBI's own dashboards** |
-| `/se /net /ext /poi /mcp` knowledge | ✅ live | Compact technique corpus from the six skills |
-| **Text-to-speech** (play each reply) | ✅ live | Web Speech `speechSynthesis` — per-message ▶ + auto-read toggle |
-| **Speech-to-text** (mic dictation) | ✅ live | Web Speech `SpeechRecognition` where supported |
-| Workspace (upload / drag-drop / scan files) | ✅ live | `FileReader`, text files auto-scannable for injection |
-| History of past sessions | ✅ live | `localStorage`, reload any session |
-| Notifications | ✅ live | Fires on quarantine / ingest / high-severity scans |
-| Agent Screen (thought-stream) | ✅ live | Toggleable `THINK → TOOL → OBS → ACT` telemetry |
-| Settings (voice, motion, auto-screen, wipe) | ✅ live | Persisted locally |
-| Self-protection: scans your input before acting | ✅ live | SOUL directive — flags injection in your own messages |
-
-Everything runs **100% locally in the browser**. No data leaves the device.
-
-## What is stubbed (honestly marked "not connected")
-
-- **Model backend** — OBI's LLM replies are local placeholders. Wire to your OpenRouter /
-  Ollama / API endpoint next.
-- **proot / device control bridge** — needs the Termux host agent.
-- **Screen share to OBI** — the "watch his computer" live feed (Manus/Kimi style) needs a
-  host-side capture bridge.
+```
+obi-shell/
+├── index.html            ← the app (PWA — installs to your home screen)
+├── manifest.webmanifest  ← PWA manifest
+├── sw.js                 ← offline service worker
+├── icon.svg              ← quasar app icon
+└── bridge/
+    ├── obi_bridge.py      ← the device half: serves the app + device control + real skills
+    ├── install.sh         ← one-command Termux setup
+    └── README.md          ← bridge docs
+```
 
 ---
 
-## Integration roadmap (deep wiring)
+## Run it (full power, on your phone)
 
-**Phase 1 — Model backend.** Replace `obiReply()` / `respond()` with a streaming call to
-your provider. The Agent Screen already models `THINK/TOOL/OBS/ACT` — stream real tokens and
-tool-call events into `asLine()`.
+```bash
+# in Termux on Android
+pkg install python termux-api git
+git clone <this repo> && cd AionUi/obi-shell/bridge
+bash install.sh
 
-**Phase 2 — Dispatch to the real skills.** The Python `OBIDispatcher` already routes
-`/commands` to the six skills. Stand up a tiny local HTTP shim (Flask/FastAPI in Termux) that
-exposes `dispatch(cmd)`; the shell's `handleCommand()` then calls it instead of the ported JS
-(which stays as the offline fallback).
+# drop your OBI skill files where the bridge expects them
+cp /path/to/obi_skill_*.py            ~/obi/skills/adversarial/
+cp /path/to/obi_command_dispatcher.py ~/obi/commands/
 
-**Phase 3 — Device bridge.** A Termux companion process exposes proot/file/exec over a
-localhost socket; the Settings "device bridge" pills flip to connected and gate a permissioned
-command surface. **Every tool result must pass `scan_tool_result()` before it re-enters
-context** — the ReAct-loop protection from `obi_skill_mcp_poisoning`.
+# launch
+export OBI_ALLOW_EXEC=1                 # enable device control (optional)
+python obi_bridge.py                    # → http://localhost:8420
+```
 
-**Phase 4 — Screen stream.** Host-side capture (scrcpy / MediaProjection / a headless browser
-frame) piped to a `<video>`/canvas in the Agent Screen panel, toggled by the existing Screen
-button.
+Open **http://localhost:8420**, **Add to Home screen**, then in the app pick
+**Settings → OBI's brain → Obliteratus Bridge**. Now everything is live:
+real model (via local Ollama), real `/scan` etc. through your Python skills,
+device control, and screen capture.
 
-**Phase 5 — Fold into AionUi.** Port the shell into `packages/desktop/src/renderer` as Arco
-components following the repo's `architecture` skill (10-children/dir, semantic tokens, no raw
-HTML), reusing AionUi's existing multi-provider model plumbing and IPC bridge for the device
-layer.
+## Or use it right now (no phone setup)
+
+Open the app in any browser and go to **Settings → OBI's brain**:
+- **OpenRouter** or **Anthropic** — paste a key, OBI thinks immediately (works in-browser).
+- Or leave it unconnected — the offline scanners and voice still work.
 
 ---
 
-*Prototype v0.1 · built on branch `claude/obi-wrapper-agent-os-2nwxpa`. All processing local.*
+## What's live
+
+| | Works offline (no backend) | Needs a provider | Needs the bridge |
+| --- | :---: | :---: | :---: |
+| Quasar / event-horizon UI, glassmorphism | ✅ | | |
+| Chat with OBI persona | ✅ | | |
+| **Live streaming AI** (OBI's SOUL as system prompt) | | ✅ OpenRouter/Anthropic/Ollama/OpenAI-compat | ✅ local Ollama |
+| Text-to-speech (play each reply) + STT dictation | ✅ | | |
+| `/scan /sescan /mcpscan` (ported scanners) | ✅ | | ✅ real Python skills |
+| `/se /net /ext /poi /mcp` knowledge + `/skills` `/help` | ✅ | | ✅ full dispatcher |
+| Workspace: ingest, drag-drop, one-tap file injection scan | ✅ | | |
+| Session history + notifications | ✅ | | |
+| Agent Screen thought-stream (THINK/TOOL/OBS/ACT) | ✅ | ✅ real stream status | |
+| Self-protection: input injection-scanned before OBI acts | ✅ | | |
+| **proot / device control** (`/exec`) | | | ✅ |
+| **Screen capture** from device | | | ✅ |
+| Install to home screen (PWA), offline shell | ✅ | | |
+
+The app degrades gracefully: no provider → offline scanners; no bridge → the app
+falls back to its built-in JS scanners for slash commands.
+
+## Security posture (built in, per OBI's SOUL)
+
+- Your input is injection-scanned **before** OBI acts on it; flagged content is
+  surfaced, not executed.
+- API keys are stored only in this device's `localStorage`.
+- The bridge binds to `127.0.0.1`, keeps `/exec` **off** unless `OBI_ALLOW_EXEC=1`,
+  and supports an `OBI_TOKEN` shared secret.
+- Tool/`/exec` output should pass `scan_tool_result()` before re-entering context —
+  the ReAct-loop defense from skill 6.
+
+## Next step: folding into AionUi proper
+
+The prototype is deliberately standalone so it runs anywhere today. To make it a
+first-class AionUi surface, port `index.html` into `packages/desktop/src/renderer`
+as Arco components (follow the repo's `architecture` skill — 10-children/dir,
+semantic tokens, no raw HTML), reusing AionUi's multi-provider model plumbing and
+IPC bridge for the device layer in place of the standalone Termux bridge.
+
+*v0.1 · branch `claude/obi-wrapper-agent-os-2nwxpa` · all processing local.*
