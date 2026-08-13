@@ -828,11 +828,12 @@ async function respond(text){
       });
     }catch(e){
       const m=e.message||'';
-      const hint = /429/.test(m) ? ' — OpenRouter free-tier rate limit hit. Wait a bit, or pick a different ✦free model / add credits.'
-                 : /404/.test(m) ? ' — model ID not found. Open Settings and pick one from the list.'
+      const hint = /no allowed providers/i.test(m) ? ' — free models are disabled on your OpenRouter account. Turn ON free providers at openrouter.ai/settings/privacy, then retry.'
+                 : /429/.test(m) ? ' — OpenRouter free-tier rate limit hit. Wait a bit, pick a different ✦free model, or add a few credits.'
+                 : /404/.test(m) ? ' — model ID not found. Open Settings and pick one from the dropdown list.'
                  : /401|403/.test(m) ? ' — key rejected. Re-check your API key in Settings.'
                  : '. Check provider/key in Settings.';
-      stream.fail(`model error — ${m}${hint}`);
+      stream.fail(`model error — ${m.slice(0,160)}${hint}`);
       asLine('warn',`stream failed: ${esc(m.slice(0,80))}`);
       pushNotif('warn','Model error',m.slice(0,50));
     }
