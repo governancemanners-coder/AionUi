@@ -258,7 +258,18 @@ def main():
     print("  Open the app URL above in your browser, then in the app set")
     print("  Settings → OBI's brain → Obliteratus Bridge.  Ctrl-C to stop.")
     print("═" * 58)
-    ThreadingHTTPServer((args.host, args.port), Handler).serve_forever()
+    try:
+        srv = ThreadingHTTPServer((args.host, args.port), Handler)
+    except OSError as e:
+        import errno
+        if e.errno in (errno.EADDRINUSE, 98, 48):
+            print(f"\n  ✗ Port {args.port} is already in use — another OBI bridge is running.")
+            print(f"    Stop it and retry:   pkill -f obi_bridge.py")
+            print(f"    …or use another port: python {os.path.basename(__file__)} --port {args.port + 1}\n")
+        else:
+            print(f"\n  ✗ Could not bind {args.host}:{args.port} — {e}\n")
+        sys.exit(1)
+    srv.serve_forever()
 
 
 if __name__ == "__main__":
