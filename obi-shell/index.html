@@ -251,6 +251,9 @@ select{font-family:var(--ui);font-size:12.5px;color:var(--cream);background:var(
   background:rgba(230,178,76,.08);border:1px solid rgba(230,178,76,.3);border-radius:9px;padding:9px 14px}
 .testbtn:active{background:rgba(230,178,76,.16)}
 .pill-status.ok{color:var(--green);border-color:rgba(87,224,160,.35);background:rgba(87,224,160,.08)}
+.toggle.small{width:34px;height:20px;flex-shrink:0}
+.toggle.small::after{width:15px;height:15px}
+.toggle.small.on::after{transform:translateX(14px)}
 .pill-status{font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:3px 8px;border-radius:20px;
   border:1px solid var(--hair-soft);color:var(--tan);text-transform:uppercase}
 .pill-status.off{color:var(--red);border-color:rgba(255,77,94,.3);background:rgba(255,77,94,.07)}
@@ -372,8 +375,17 @@ nav{flex-shrink:0;display:flex;justify-content:center;padding:6px 14px 12px}
         <div id="connfields" style="display:none">
           <input class="connfield" id="c-endpoint" placeholder="Endpoint URL" autocomplete="off" spellcheck="false">
           <input class="connfield" id="c-key" placeholder="API key" type="password" autocomplete="off">
-          <input class="connfield" id="c-model" placeholder="Model" autocomplete="off" spellcheck="false">
-          <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+          <div id="modelpick" style="display:none;margin-top:8px">
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+              <select id="c-modelsel" style="max-width:none;flex:1"></select>
+              <button class="testbtn" id="c-reload" title="Refresh model list">↻</button>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tan);padding:2px">
+              <span class="toggle small" id="freeonly"></span> Free models only
+            </label>
+          </div>
+          <input class="connfield" id="c-model" placeholder="Model (or pick above)" autocomplete="off" spellcheck="false">
+          <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
             <button class="testbtn" id="c-test">Test connection</button>
             <span class="pill-status" id="c-status">idle</span>
           </div>
@@ -534,7 +546,7 @@ let S=JSON.parse(localStorage.getItem(LS)||'null')||{
   uploads:[],artifacts:[],history:[],notifs:[]
 };
 S.settings=Object.assign({tts:false,autoscreen:true,motion:true},S.settings);
-S.conn=Object.assign({provider:'',endpoint:'',key:'',model:''},S.conn);
+S.conn=Object.assign({provider:'',endpoint:'',key:'',model:'',freeOnly:true},S.conn);
 function save(){localStorage.setItem(LS,JSON.stringify(S));}
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 let msgs=[]; // current session
@@ -815,9 +827,14 @@ async function respond(text){
         stream.done(full);asLine('obs','response complete');
       });
     }catch(e){
-      stream.fail(`model error — ${e.message}. Check provider/key in Settings.`);
-      asLine('warn',`stream failed: ${esc(e.message.slice(0,80))}`);
-      pushNotif('warn','Model error',e.message.slice(0,50));
+      const m=e.message||'';
+      const hint = /429/.test(m) ? ' — OpenRouter free-tier rate limit hit. Wait a bit, or pick a different ✦free model / add credits.'
+                 : /404/.test(m) ? ' — model ID not found. Open Settings and pick one from the list.'
+                 : /401|403/.test(m) ? ' — key rejected. Re-check your API key in Settings.'
+                 : '. Check provider/key in Settings.';
+      stream.fail(`model error — ${m}${hint}`);
+      asLine('warn',`stream failed: ${esc(m.slice(0,80))}`);
+      pushNotif('warn','Model error',m.slice(0,50));
     }
     setCore('stable');saveSession();return;
   }
@@ -1050,6 +1067,13 @@ function toast(msg){
    CONNECTION SETTINGS
    ════════════════════════════════════════════════════════════════ */
 const provsel=$('#provsel'),connfields=$('#connfields');
+function modelsSupported(prov){return ['openrouter','ollama','openai_compat','anthropic'].includes(prov);}
+function modelsUrl(){
+  const prov=S.conn.provider;
+  if(prov==='anthropic')return 'https://api.anthropic.com/v1/models';
+  const base=connEndpoint().replace(/\/chat\/completions.*$/,'').replace(/\/$/,'');
+  return base+'/models';
+}
 function paintConn(){
   provsel.value=S.conn.provider||'';
   const p=PROVIDERS[S.conn.provider];
@@ -1058,18 +1082,63 @@ function paintConn(){
     $('#provhint').textContent=p.hint;
     $('#c-endpoint').value=S.conn.endpoint||p.endpoint;
     $('#c-key').value=S.conn.key||'';
-    $('#c-key').parentElement && ($('#c-key').style.display=p.key?'block':'none');
+    $('#c-key').style.display=p.key?'block':'none';
     $('#c-model').value=S.conn.model||p.model;
+    $('#modelpick').style.display=modelsSupported(S.conn.provider)?'block':'none';
+    $('#freeonly').classList.toggle('on',!!S.conn.freeOnly);
+  }
+}
+let modelCache=[];
+function renderModelSelect(){
+  const sel=$('#c-modelsel');
+  let list=modelCache;
+  if(S.conn.freeOnly)list=modelCache.filter(m=>m.free);
+  if(!list.length){sel.innerHTML=`<option value="">${modelCache.length?'no free models — untick filter':'load models ↻'}</option>`;return;}
+  sel.innerHTML=`<option value="">— ${list.length} models —</option>`+list.map(m=>
+    `<option value="${esc(m.id)}"${m.id===S.conn.model?' selected':''}>${m.free?'✦ ':''}${esc(m.id)}</option>`).join('');
+}
+async function loadModels(){
+  if(!modelsSupported(S.conn.provider))return;
+  const sel=$('#c-modelsel');sel.innerHTML='<option>loading…</option>';
+  try{
+    const headers={};
+    if(S.conn.provider==='anthropic'){headers['x-api-key']=S.conn.key;headers['anthropic-version']='2023-06-01';headers['anthropic-dangerous-direct-browser-access']='true';}
+    else if(S.conn.key)headers['Authorization']='Bearer '+S.conn.key;
+    const r=await fetch(modelsUrl(),{headers,signal:AbortSignal.timeout(8000)});
+    if(!r.ok)throw new Error(r.status+'');
+    const j=await r.json();const data=j.data||j.models||[];
+    modelCache=data.map(m=>{
+      const id=m.id||m.name||m.model;
+      const pr=m.pricing||{};
+      const free = (id&&/:free\b/i.test(id)) || (pr.prompt!==undefined && Number(pr.prompt)===0 && Number(pr.completion)===0);
+      return {id,free:!!free};
+    }).filter(m=>m.id).sort((a,b)=>(b.free-a.free)||a.id.localeCompare(b.id));
+    renderModelSelect();
+    // auto-pick a working default if none set (or current isn't in list)
+    if((!S.conn.model || !modelCache.some(m=>m.id===S.conn.model))){
+      const pick=(S.conn.freeOnly?modelCache.filter(m=>m.free):modelCache)[0];
+      if(pick){S.conn.model=pick.id;$('#c-model').value=pick.id;save();renderModelSelect();}
+    }
+  }catch(e){
+    $('#c-modelsel').innerHTML=`<option value="">list failed (${esc(e.message)}) — type model below</option>`;
   }
 }
 provsel.addEventListener('change',()=>{
   S.conn.provider=provsel.value;const p=PROVIDERS[provsel.value];
-  if(p){S.conn.endpoint=p.endpoint;S.conn.model=p.model;}
-  save();paintConn();if(provsel.value)checkBridge();
+  if(p){S.conn.endpoint=p.endpoint;if(!modelsSupported(provsel.value))S.conn.model=p.model;else S.conn.model='';}
+  modelCache=[];save();paintConn();
+  if(provsel.value)checkBridge();
+  if(modelsSupported(provsel.value)&&(S.conn.key||provsel.value==='ollama'))loadModels();
 });
+$('#c-modelsel').addEventListener('change',e=>{if(e.target.value){S.conn.model=e.target.value;$('#c-model').value=e.target.value;save();$('#c-status').textContent='idle';$('#c-status').className='pill-status';}});
+$('#c-reload').addEventListener('click',loadModels);
+$('#freeonly').addEventListener('click',()=>{S.conn.freeOnly=!S.conn.freeOnly;save();$('#freeonly').classList.toggle('on',S.conn.freeOnly);renderModelSelect();});
+let keyTimer;
 ['c-endpoint','c-key','c-model'].forEach(id=>{
   const key=id.split('-')[1];
-  $('#'+id).addEventListener('input',e=>{S.conn[key]=e.target.value;save();});
+  $('#'+id).addEventListener('input',e=>{S.conn[key]=e.target.value;save();
+    if(id==='c-key'&&modelsSupported(S.conn.provider)){clearTimeout(keyTimer);keyTimer=setTimeout(loadModels,700);}
+  });
 });
 $('#c-test').addEventListener('click',async()=>{
   const st=$('#c-status');st.textContent='testing…';st.className='pill-status';
@@ -1117,6 +1186,7 @@ function greet(){
 }
 syncToggles();
 paintConn();
+if(modelsSupported(S.conn.provider)&&(S.conn.key||S.conn.provider==='ollama'))loadModels();
 startHorizon();
 renderNotif();
 if(S.notifs.some(n=>!n.read))$('#belldot').classList.add('on');
