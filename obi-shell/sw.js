@@ -1,5 +1,5 @@
-/* Obliteratus Agent-OS — offline shell cache */
-const CACHE = 'obi-shell-v1';
+/* Obliteratus Agent-OS — service worker (network-first so updates always show) */
+const CACHE = 'obi-shell-v2';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', e => {
@@ -9,16 +9,19 @@ self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks =>
     Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
+self.addEventListener('message', e => { if (e.data === 'skipWaiting') self.skipWaiting(); });
+
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-  // never cache API / model calls — always go to network
-  if (['/dispatch','/chat','/exec','/screen','/health'].some(p => url.pathname.startsWith(p))
+  // never touch API / model calls
+  if (['/dispatch','/chat','/exec','/screen','/health','/fs'].some(p => url.pathname.startsWith(p))
       || url.origin !== location.origin) return;
+  // network-first: always try fresh, fall back to cache only when offline
   e.respondWith(
-    caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {
+    fetch(e.request).then(res => {
       const copy = res.clone();
       caches.open(CACHE).then(c => c.put(e.request, copy)).catch(()=>{});
       return res;
-    }).catch(() => caches.match('./index.html')))
+    }).catch(() => caches.match(e.request).then(hit => hit || caches.match('./index.html')))
   );
 });
