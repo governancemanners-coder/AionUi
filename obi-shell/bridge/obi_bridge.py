@@ -237,12 +237,12 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
+    global APP_DIR
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=int(os.environ.get("OBI_PORT", 8420)))
     ap.add_argument("--host", default=os.environ.get("OBI_HOST", "127.0.0.1"))
     ap.add_argument("--dir", default=APP_DIR, help="directory to serve the app from")
     args = ap.parse_args()
-    global APP_DIR
     APP_DIR = os.path.abspath(args.dir)
 
     print("═" * 58)
