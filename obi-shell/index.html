@@ -629,7 +629,8 @@ function updateBridgePills(){
   });
 }
 async function bridgeDispatch(cmd){
-  const ep=connEndpoint().replace(/\/$/,'');
+  // Commands ALWAYS route to the bridge, never the selected model's API endpoint.
+  const ep=(PROVIDERS.bridge.endpoint||'http://localhost:8420').replace(/\/$/,'');
   const r=await fetch(ep+'/dispatch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command:cmd})});
   const j=await r.json();return j.output||'';
 }
