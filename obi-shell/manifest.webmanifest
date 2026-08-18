@@ -1,0 +1,14 @@
+{
+  "name": "Obliteratus Agent-OS",
+  "short_name": "OBI",
+  "description": "Quasar-themed agent-OS shell for OBI — reverse engineering & personal security harness.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#05060A",
+  "theme_color": "#05060A",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

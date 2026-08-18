@@ -1,0 +1,39 @@
+╔══════════════════════════════════════════════════════════════╗
+║  OBLITERATUS // QUASAR AGENT-OS  —  install on your phone      ║
+╚══════════════════════════════════════════════════════════════╝
+
+You downloaded obi-shell.zip into your Downloads folder.
+Three commands in Termux and OBI is live.
+
+────────────────────────────────────────────────────────────────
+STEP 1 — unzip it into your home folder
+────────────────────────────────────────────────────────────────
+  cd ~
+  unzip -o /storage/emulated/0/Download/obi-shell.zip
+  (if you don't have unzip:  pkg install unzip)
+
+────────────────────────────────────────────────────────────────
+STEP 2 — run the installer (sets up python, finds your skills)
+────────────────────────────────────────────────────────────────
+  bash ~/obi-shell/bridge/install.sh
+
+  It will offer to start OBI. Say y.
+
+────────────────────────────────────────────────────────────────
+STEP 3 — open the app
+────────────────────────────────────────────────────────────────
+  Open a browser on the phone →  http://localhost:8420
+  Menu → "Add to Home screen"  → launches full-screen like an app.
+
+  In the app:  Settings → OBI's brain
+    • pick "Obliteratus Bridge (Termux)"  → uses your local Ollama
+    • or paste an OpenRouter / Anthropic key to use a cloud model
+
+────────────────────────────────────────────────────────────────
+To start OBI again later (any time):
+────────────────────────────────────────────────────────────────
+  export OBI_ALLOW_EXEC=1        # optional: lets OBI run device commands
+  python ~/obi-shell/bridge/obi_bridge.py
+
+Everything runs on your device. Keys and data stay local.
+Full docs: obi-shell/README.md  and  obi-shell/bridge/README.md
