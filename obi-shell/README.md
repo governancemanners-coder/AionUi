@@ -63,6 +63,7 @@ Open the app in any browser and go to **Settings → OBI's brain**:
 | Workspace: ingest, drag-drop, one-tap file injection scan | ✅ | | |
 | Session history + notifications | ✅ | | |
 | Agent Screen thought-stream (THINK/TOOL/OBS/ACT) | ✅ | ✅ real stream status | |
+| **Team orchestration** (`/team` — OBI spawns visible subagents) | ✅ local team | ✅ each subagent is a real model call | ✅ via local model |
 | Self-protection: input injection-scanned before OBI acts | ✅ | | |
 | **proot / device control** (`/exec`) | | | ✅ |
 | **Screen capture** from device | | | ✅ |
@@ -70,6 +71,27 @@ Open the app in any browser and go to **Settings → OBI's brain**:
 
 The app degrades gracefully: no provider → offline scanners; no bridge → the app
 falls back to its built-in JS scanners for slash commands.
+
+## Team orchestration — visible subagents
+
+OBI doesn't just answer; he **delegates**. Type `/team <task>` (or `/delegate`) and OBI
+becomes the orchestrator:
+
+1. **Decompose** — he breaks the task into 2–4 subtasks (a live model plans it; offline, a
+   keyword heuristic does).
+2. **Delegate** — each subtask is assigned to a named subordinate with its own specialized
+   system prompt: **Recon**, **Reverser**, **Red Team**, **Analyst**, **Defender**, **Scribe**.
+3. **Watch** — open the **Team** tab. Each subordinate gets its own card: profile, assigned
+   subtask, a live status badge (queued → running → done), and its streaming output. The
+   Agent Screen mirrors it with `DELEGATE` / `SUBAGENT` / `OBS` lines.
+4. **Synthesize** — OBI fuses every report into one brief (Findings · Risk · Next actions),
+   posts it to chat, and saves it to your workspace.
+
+Each subagent is a real, provider-agnostic model call (it reuses the same connection you set
+in Settings), so this works on OpenRouter, Anthropic, Ollama, or the Termux bridge's local
+model. With no model connected, the team still runs on local scanners + heuristics so you can
+see the whole delegation fire end-to-end. No Docker, no containers — visible subagents are
+orchestration + UI, and it's all here.
 
 ## Security posture (built in, per OBI's SOUL)
 

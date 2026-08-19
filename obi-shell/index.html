@@ -289,6 +289,53 @@ nav{flex-shrink:0;display:flex;justify-content:center;padding:6px 14px 12px}
 .backdrop.on{opacity:1;pointer-events:auto}
 
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.08s!important}}
+
+/* ── OBI team / orchestration ─────────────────────────────────── */
+.as-tag.delegate{color:var(--gold);background:rgba(230,178,76,.18);border:1px solid rgba(230,178,76,.42)}
+.as-tag.subagent{color:var(--lens-hot);background:rgba(138,92,255,.14);border:1px solid rgba(138,92,255,.32)}
+
+.tm-orch{display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:var(--r-sm);
+  border:1px solid rgba(230,178,76,.32);background:linear-gradient(160deg,rgba(230,178,76,.09),transparent);margin-bottom:12px}
+.tm-orch .glyph{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;flex-shrink:0;
+  background:radial-gradient(circle at 50% 32%,rgba(230,178,76,.4),rgba(0,0,0,.45));
+  border:1px solid rgba(230,178,76,.42);font-size:17px;color:var(--gold)}
+.tm-orch .meta{flex:1;min-width:0}
+.tm-orch .nm{font-size:14px;color:var(--cream);font-weight:600}
+.tm-orch .sub{font-size:11px;color:var(--tan);font-family:var(--mono);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tm-orch .ph{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;flex-shrink:0;
+  color:var(--gold);padding:4px 9px;border-radius:20px;border:1px solid rgba(230,178,76,.3);background:rgba(230,178,76,.06)}
+
+.tm-card{border:1px solid var(--hair-soft);border-radius:var(--r-sm);background:var(--glass);
+  backdrop-filter:blur(var(--blur));margin-bottom:9px;overflow:hidden;transition:.2s;animation:rise .34s}
+.tm-card.active{border-color:var(--hair);box-shadow:0 0 0 1px var(--hair) inset}
+.tm-head{display:flex;align-items:center;gap:11px;padding:11px 13px;cursor:pointer}
+.tm-head .glyph{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex-shrink:0;
+  font-family:var(--mono);font-size:15px;border:1px solid var(--hair-soft);background:var(--panel-2)}
+.tm-head .meta{flex:1;min-width:0}
+.tm-head .nm{font-size:13.5px;color:var(--cream);display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+.tm-head .role{font-size:9.5px;color:var(--tan-dim);font-family:var(--mono);letter-spacing:.05em;text-transform:uppercase}
+.tm-head .task{font-size:11.5px;color:var(--tan);margin-top:3px;line-height:1.4}
+.tm-badge{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 8px;border-radius:20px;border:1px solid var(--hair-soft);color:var(--tan-dim);flex-shrink:0;align-self:flex-start}
+.tm-badge.running{color:var(--gold);border-color:rgba(230,178,76,.4);background:rgba(230,178,76,.08);animation:pulseb 1.3s infinite}
+.tm-badge.done{color:var(--green);border-color:rgba(87,224,160,.35);background:rgba(87,224,160,.08)}
+.tm-badge.failed{color:var(--red);border-color:rgba(255,77,94,.3);background:rgba(255,77,94,.08)}
+@keyframes pulseb{50%{opacity:.5}}
+.tm-body{max-height:0;overflow:hidden;transition:max-height .32s ease}
+.tm-card.open .tm-body{max-height:2400px;border-top:1px solid var(--hair-soft)}
+.tm-out{padding:11px 13px;font-family:var(--mono);font-size:11.5px;line-height:1.65;color:var(--tan);word-break:break-word}
+.tm-out b{color:var(--cream);font-weight:600}
+.tm-out code{color:var(--gold);font-family:var(--mono)}
+
+.tm-card.cyan .glyph{color:var(--cyan);border-color:rgba(87,200,224,.35)}
+.tm-card.gold .glyph{color:var(--gold);border-color:rgba(230,178,76,.4)}
+.tm-card.red .glyph{color:var(--red);border-color:rgba(255,77,94,.35)}
+.tm-card.lens .glyph{color:var(--lens-hot);border-color:rgba(138,92,255,.35)}
+.tm-card.green .glyph{color:var(--green);border-color:rgba(87,224,160,.35)}
+.tm-card.tan .glyph{color:var(--tan);border-color:var(--hair)}
+
+.tm-empty{text-align:center;color:var(--tan-dim);font-size:12px;padding:34px 12px;font-style:italic;line-height:1.7}
+.tm-empty b{color:var(--gold);font-style:normal}
 </style>
 
 </head>
@@ -346,6 +393,15 @@ nav{flex-shrink:0;display:flex;justify-content:center;padding:6px 14px 12px}
         <div id="uploads"><div class="empty">Nothing ingested yet.</div></div>
         <div class="sechead">OBI's saved work</div>
         <div id="artifacts"><div class="empty">OBI hasn't saved anything for you yet.</div></div>
+      </div>
+    </section>
+
+    <!-- ══ TEAM ══ -->
+    <section class="surface" id="s-team">
+      <div class="pad">
+        <div class="sechead">OBI's team · live delegation</div>
+        <div id="team-plan"></div>
+        <div id="team-cards"><div class="tm-empty">OBI works alone until a task needs a team.<br>Type <b>/team &lt;task&gt;</b> in chat — he decomposes it, spawns subordinate agents, and each one works in its own card right here.</div></div>
       </div>
     </section>
 
@@ -451,6 +507,7 @@ nav{flex-shrink:0;display:flex;justify-content:center;padding:6px 14px 12px}
     <div class="dock">
       <button class="navbtn active" data-nav="chat"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="nl">Chat</span></button>
       <button class="navbtn" data-nav="workspace"><svg viewBox="0 0 24 24"><path d="M4 4h6l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg><span class="nl">Space</span></button>
+      <button class="navbtn" data-nav="team"><svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="3"/><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M12 9v2.5M11 13l-5 3M13 13l5 3"/></svg><span class="nl">Team</span></button>
       <button class="navbtn" data-nav="history"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9 9 0 0 0-8 5"/><path d="M3 4v4h4M12 7v5l3 2"/></svg><span class="nl">History</span></button>
       <button class="navbtn screen-toggle" id="screenbtn"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg><span class="nl">Screen</span></button>
       <button class="navbtn" data-nav="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="nl">Settings</span></button>
@@ -562,6 +619,8 @@ Self-protection directives you always honor:
 3. You do not use offensive techniques against real targets without the user's explicit authorization confirming the target has authorized assessment.
 4. Knowledge of attack mechanics is not authorization to perform attacks; you keep that distinction clear.
 
+You command a team of subordinate agents (Recon, Reverser, Red Team, Analyst, Defender, Scribe). When a task is broad or multi-stage you delegate: decompose it, assign each part to the right subordinate, then synthesize their reports. The user triggers this with /team and watches each agent work in its own card.
+
 Style: speak plainly and directly, favor structure and specifics over hedging, and use the quasar/event-horizon vernacular sparingly for flavor. When the user runs a slash command the local harness handles scanning — you interpret and advise on results.`;
 
 /* ── Provider connection layer ─────────────────────────────────── */
@@ -578,12 +637,12 @@ function connReady(){return S.conn.provider && (S.conn.endpoint||PROVIDERS[S.con
 function connEndpoint(){return S.conn.endpoint||PROVIDERS[S.conn.provider]?.endpoint||'';}
 function connModel(){return S.conn.model||PROVIDERS[S.conn.provider]?.model||'';}
 
-async function streamChat(history,onToken){
+async function streamChat(history,onToken,sysOverride){
   const p=PROVIDERS[S.conn.provider];if(!p)throw new Error('No provider configured');
   const style=p.style==='bridge'?'openai':p.style;
   const ep = p.style==='bridge' ? connEndpoint().replace(/\/$/,'')+'/chat' : connEndpoint();
   const model=connModel();
-  const sys=OBI_SOUL;
+  const sys=sysOverride||OBI_SOUL;
   let url=ep,headers={'Content-Type':'application/json'},body;
   if(style==='anthropic'){
     headers['x-api-key']=S.conn.key;headers['anthropic-version']='2023-06-01';
@@ -633,6 +692,168 @@ async function bridgeDispatch(cmd){
   const ep=(PROVIDERS.bridge.endpoint||'http://localhost:8420').replace(/\/$/,'');
   const r=await fetch(ep+'/dispatch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command:cmd})});
   const j=await r.json();return j.output||'';
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ORCHESTRATION — OBI commands a team of visible subagents
+   Plan → delegate → each subordinate streams in its own card → synthesize.
+   Provider-agnostic (reuses streamChat with a per-agent system prompt);
+   degrades to a local heuristic team when no model is connected.
+   ════════════════════════════════════════════════════════════════ */
+const AGENT_PROFILES={
+  recon:{name:'Recon',glyph:'⌖',color:'cyan',role:'reconnaissance',
+    soul:`${OBI_SOUL}\n\nYou are RECON, a subordinate agent reporting to OBI. Your job: map the target surface — enumerate components, inputs, endpoints, dependencies, versions and trust boundaries relevant to the assignment. Output a tight bulleted list of what exists and where the soft spots likely are. Authorized/defensive scope only. Be terse.`},
+  re:{name:'Reverser',glyph:'⚙',color:'gold',role:'reverse engineering',
+    soul:`${OBI_SOUL}\n\nYou are REVERSER, a subordinate agent reporting to OBI. Your job: tear down structure and behavior — formats, protocols, control flow, state, obfuscation — and explain precisely how the thing actually works. Be concrete and mechanistic. Be terse.`},
+  redteam:{name:'Red Team',glyph:'⚔',color:'red',role:'adversarial mechanics',
+    soul:`${OBI_SOUL}\n\nYou are RED TEAM, a subordinate agent reporting to OBI. Your job: think like the adversary to expose how an attack would work — injection, social engineering, abuse paths — strictly to inform defense and only for authorized assessment. Name concrete techniques and their preconditions. Do not produce operational payloads against real third parties. Be terse.`},
+  analyst:{name:'Analyst',glyph:'◎',color:'lens',role:'analysis & correlation',
+    soul:`${OBI_SOUL}\n\nYou are ANALYST, a subordinate agent reporting to OBI. Your job: correlate the team's findings, weigh severity vs. likelihood, and separate signal from noise into a prioritized assessment. Be terse.`},
+  defender:{name:'Defender',glyph:'❋',color:'green',role:'hardening & detection',
+    soul:`${OBI_SOUL}\n\nYou are DEFENDER, a subordinate agent reporting to OBI. Your job: turn findings into concrete mitigations, hardening steps and detections the user can apply now. Be specific and actionable. Be terse.`},
+  scribe:{name:'Scribe',glyph:'✒',color:'tan',role:'synthesis',
+    soul:`${OBI_SOUL}\n\nYou are SCRIBE, a subordinate agent reporting to OBI. Your job: fuse the team's outputs into one clear structured brief — Findings, Risk, Recommended actions. Keep OBI's terse, sharp voice.`},
+};
+
+let team=[];           // [{id,agent,subtask,status,output,open}]
+let teamPhase='idle';
+
+function stripMd(s){return (s||'').replace(/[#*`>_]/g,'').replace(/\n{2,}/g,'. ');}
+
+function renderTeam(){
+  const planEl=$('#team-plan'),cardsEl=$('#team-cards');
+  if(!planEl||!cardsEl)return;
+  if(!team.length){
+    planEl.innerHTML='';
+    cardsEl.innerHTML='<div class="tm-empty">OBI works alone until a task needs a team.<br>Type <b>/team &lt;task&gt;</b> in chat — he decomposes it, spawns subordinate agents, and each one works in its own card right here.</div>';
+    return;
+  }
+  const done=team.filter(t=>t.status==='done'||t.status==='failed').length;
+  planEl.innerHTML=`<div class="tm-orch"><div class="glyph">Ω</div>
+    <div class="meta"><div class="nm">OBI · Orchestrator</div><div class="sub">${esc(teamPhase)}</div></div>
+    <div class="ph">${done}/${team.length} done</div></div>`;
+  cardsEl.innerHTML=team.map(t=>{const p=AGENT_PROFILES[t.agent];
+    return `<div class="tm-card ${p.color}${t.status==='running'?' active':''}${t.open?' open':''}" data-id="${t.id}">
+      <div class="tm-head"><div class="glyph">${p.glyph}</div>
+        <div class="meta"><div class="nm">${p.name} <span class="role">${p.role}</span></div>
+          <div class="task">${esc(t.subtask)}</div></div>
+        <span class="tm-badge ${t.status}">${t.status}</span></div>
+      <div class="tm-body"><div class="tm-out">${t.output?mdLite(t.output):'<span style="color:var(--tan-dim)">awaiting dispatch…</span>'}</div></div>
+    </div>`;}).join('');
+  cardsEl.querySelectorAll('.tm-card').forEach(c=>c.querySelector('.tm-head').addEventListener('click',()=>{
+    const t=team.find(x=>x.id===c.dataset.id);if(t){t.open=!t.open;renderTeam();}}));
+}
+function renderTeamOutput(t){ // light per-token update (no full re-render)
+  const c=document.querySelector(`#team-cards .tm-card[data-id="${t.id}"]`);
+  if(c){const out=c.querySelector('.tm-out');if(out)out.innerHTML=mdLite(t.output);}
+}
+function gotoTeam(){
+  $$('.navbtn[data-nav]').forEach(x=>x.classList.remove('active'));
+  const b=$('.navbtn[data-nav="team"]');if(b)b.classList.add('active');
+  $$('.surface').forEach(s=>s.classList.remove('active'));
+  $('#s-team').classList.add('active');renderTeam();
+}
+
+function teamLive(){return connReady() && (S.conn.provider!=='bridge'||bridgeUp) && (!PROVIDERS[S.conn.provider]?.key||S.conn.key);}
+
+async function planLive(task){
+  const sys=`${OBI_SOUL}\n\nYou are the ORCHESTRATOR of OBI's agent team. Decompose the user's task into 2 to 4 subtasks, each assigned to exactly ONE subordinate from this roster:\n- recon (reconnaissance/enumeration)\n- re (reverse engineering)\n- redteam (adversarial mechanics, defensive)\n- analyst (analysis/correlation)\n- defender (mitigations/detection)\nReply with ONLY a fenced \`\`\`json code block of shape {"plan":[{"agent":"recon","subtask":"..."}]} — no prose, no scribe (the orchestrator synthesizes).`;
+  const full=await streamChat([{role:'you',text:task}],()=>{},sys);
+  return parsePlan(full);
+}
+function parsePlan(txt){
+  const m=txt.match(/```(?:json)?\s*([\s\S]*?)```/);
+  let raw=m?m[1]:txt,obj;
+  try{obj=JSON.parse(raw);}catch(e){const a=raw.indexOf('{'),b=raw.lastIndexOf('}');obj=JSON.parse(raw.slice(a,b+1));}
+  const arr=Array.isArray(obj)?obj:(obj.plan||[]);
+  const plan=arr.filter(p=>p&&AGENT_PROFILES[p.agent]&&p.subtask&&p.agent!=='scribe').slice(0,4);
+  if(!plan.length)throw new Error('empty plan');
+  return plan;
+}
+function planHeuristic(task){
+  const t=task.toLowerCase(),plan=[{agent:'recon',subtask:`Map the surface, inputs and dependencies relevant to: ${task}`}];
+  if(/revers|binary|firmware|protocol|decompil|obfuscat|apk|malware|packet|format|disassembl/.test(t))
+    plan.push({agent:'re',subtask:`Reverse-engineer structure and behavior for: ${task}`});
+  if(/inject|phish|social|exploit|attack|bypass|adversar|red.?team|jailbreak|spoof|abuse/.test(t))
+    plan.push({agent:'redteam',subtask:`Enumerate adversarial techniques and preconditions (defensive) for: ${task}`});
+  plan.push({agent:'analyst',subtask:`Correlate findings and prioritize risk for: ${task}`});
+  if(plan.length<4)plan.push({agent:'defender',subtask:`Produce mitigations and detections for: ${task}`});
+  return plan.slice(0,4);
+}
+
+async function runSubagentLive(t,task){
+  const p=AGENT_PROFILES[t.agent];
+  const ctx=`Overall mission: ${task}\n\nYour assignment: ${t.subtask}`;
+  return await streamChat([{role:'you',text:ctx}],(tok,full)=>{t.output=full;renderTeamOutput(t);},p.soul);
+}
+async function runSubagentOffline(t,task){
+  await sleep(420+Math.random()*520);
+  const p=AGENT_PROFILES[t.agent];
+  if(t.agent==='redteam'){
+    const f=runScan(task,INJECTION_PATTERNS.concat(SE_PATTERNS));
+    return `Adversarial pass on the task text (offline scanners):\n`+
+      (f.length?f.map(x=>`• **${x.sev}** ${x.cat}: “${x.match}”`).join('\n')
+              :`• no injection / social-engineering markers in the task text itself`)+
+      `\n\nSurface to assess (mechanics, defensive): trust boundaries on untrusted input, authorization checks, and any parser touching attacker-controlled data. Connect OBI's brain for full technique enumeration.`;
+  }
+  if(t.agent==='recon')return `Surface map (offline heuristic):\n• entry points, inputs and dependencies for the task\n• versions and exposed interfaces to enumerate\n• trust boundaries to probe\nConnect a model provider for live enumeration.`;
+  if(t.agent==='re')return `Teardown plan (offline heuristic):\n• identify format / protocol and framing\n• map control flow and state\n• flag obfuscation or anti-analysis\nConnect a model provider for a full reverse pass.`;
+  if(t.agent==='analyst')return `Assessment scaffold (offline):\n• rank findings by severity × likelihood\n• separate confirmed from speculative\nA connected model scores this end-to-end.`;
+  if(t.agent==='defender')return `Mitigation scaffold (offline):\n• close the exposed trust boundaries\n• add validation at every untrusted input\n• add detection for the abuse paths above\nConnect a model for tailored, specific controls.`;
+  return `${p.name} (offline): I'd handle ${p.role} for this task. Connect OBI's brain in Settings for a full pass — delegation, cards and synthesis run locally either way.`;
+}
+
+async function synthLive(task,results){
+  const brief=results.map(r=>`## ${r.name} — ${r.subtask}\n${r.output}`).join('\n\n');
+  const msg=`Task: ${task}\n\nMy team reported:\n\n${brief}\n\nFuse this into one structured brief with **Findings**, **Risk**, and **Recommended actions**. Terse.`;
+  return await streamChat([{role:'you',text:msg}],()=>{},AGENT_PROFILES.scribe.soul);
+}
+function synthOffline(task,results){
+  return `**Team brief — ${task}**\n\n`+
+    results.map(r=>`**${r.name}** · ${r.subtask}\n${r.output}`).join('\n\n')+
+    `\n\n**Risk:** connect OBI's brain in Settings for a scored assessment.\n**Next:** open each agent's card above to inspect its full report.`;
+}
+
+async function orchestrate(task){
+  if(!task||!task.trim()){addMsg('obi',`<p class="mono">usage: /team &lt;task&gt; — OBI decomposes it and delegates to his agent team.</p>`,false);return;}
+  setCore('processing');
+  team=[];teamPhase='decomposing task';gotoTeam();
+  const live=teamLive();
+  asLine('delegate','Orchestrator engaged — decomposing task');
+  addMsg('obi',`<p><b>Team dispatch.</b> Decomposing this and delegating to my subordinates${live?'':' (offline — local team)'}. Watch the <b>Team</b> tab: each agent works in its own card.</p>`,`Team dispatch. Delegating to my subordinate agents. Watch the team tab.`);
+
+  let plan;
+  try{plan=live?await planLive(task):planHeuristic(task);}
+  catch(e){asLine('warn','planner fell back to heuristic decomposition');plan=planHeuristic(task);}
+  team=plan.map((p,i)=>({id:'a'+i+'_'+Date.now().toString(36),agent:p.agent,subtask:p.subtask,status:'queued',output:'',open:false}));
+  teamPhase='delegating';renderTeam();
+  asLine('delegate',`Plan ready — ${team.length} agents: <b>${team.map(t=>AGENT_PROFILES[t.agent].name).join(', ')}</b>`);
+
+  const results=[];
+  for(const t of team){
+    const p=AGENT_PROFILES[t.agent];
+    t.status='running';t.open=true;teamPhase=`running · ${p.name}`;renderTeam();
+    asLine('subagent',`▶ <b>${p.name}</b> — ${esc(t.subtask.slice(0,64))}`);
+    try{
+      t.output=live?await runSubagentLive(t,task):await runSubagentOffline(t,task);
+      t.status='done';
+    }catch(e){t.output+=`\n[failed: ${(e.message||e)}]`;t.status='failed';asLine('warn',`${p.name} failed: ${esc((e.message||'').slice(0,60))}`);}
+    t.open=false;renderTeam();
+    if(t.status==='done')asLine('obs',`✓ ${p.name} reported`);
+    results.push({agent:t.agent,name:p.name,subtask:t.subtask,output:t.output});
+  }
+
+  teamPhase='synthesizing';renderTeam();
+  asLine('delegate','Synthesizing team output');
+  let final;
+  try{final=live?await synthLive(task,results):synthOffline(task,results);}
+  catch(e){final=synthOffline(task,results);}
+  teamPhase='complete';renderTeam();
+  addMsg('obi',`<div class="who" style="margin-bottom:6px">Team synthesis · ${team.length} agents</div>${mdLite(final)}`,stripMd(final).slice(0,600));
+  S.artifacts.unshift({name:`Team brief — ${task.slice(0,32)}`,sub:`${team.length} agents · ${new Date().toLocaleString()}`});save();
+  pushNotif('gold','Team brief ready',task.slice(0,50));
+  asLine('act','Team dispatch complete');
+  setCore('stable');saveSession();
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -868,6 +1089,7 @@ async function handleCommand(raw){
   const arg=rest.join(' ');
   const cmd=c.toLowerCase();
   if(cmd==='clear'){msgs=[];wrap.innerHTML='';greet();return;}
+  if(cmd==='team'||cmd==='delegate'){return orchestrate(arg);}
   // Live: route to the real six-skill Python dispatcher on the bridge
   if(bridgeUp && cmd!=='help'){
     asLine('tool',`bridge.dispatch(/${esc(cmd)})`);
@@ -898,6 +1120,9 @@ async function handleCommand(raw){
  /ext &lt;tech&gt;      model-extraction technique
  /poi &lt;tech&gt;      data-poisoning technique
  /mcp &lt;tech&gt;      MCP technique
+<b style="color:var(--cream)">TEAM</b>
+ /team &lt;task&gt;      decompose &amp; delegate to a live agent team
+ /delegate &lt;task&gt;  alias of /team
 <b style="color:var(--cream)">SYSTEM</b>
  /skills           list loaded skills
  /clear            clear this session</div>`,false);
@@ -930,7 +1155,7 @@ function sendMsg(){
   respond(t);
   saveSession();
 }
-const HINTS=['/help','/scan','/sescan','/mcpscan','/skills','/se phishing','/mcp tool_result_injection'];
+const HINTS=['/help','/team','/scan','/sescan','/mcpscan','/skills','/se phishing'];
 $('#hints').innerHTML=HINTS.map(h=>`<button class="chip">${h}</button>`).join('');
 $$('#hints .chip').forEach(c=>c.addEventListener('click',()=>{$('#input').value=c.textContent+' ';$('#input').focus();autoGrow();}));
 
@@ -953,6 +1178,7 @@ $$('[data-nav]').forEach(b=>b.addEventListener('click',()=>{
   $$('.surface').forEach(s=>s.classList.remove('active'));
   $('#s-'+id).classList.add('active');
   if(id==='workspace')renderWorkspace();
+  if(id==='team')renderTeam();
   if(id==='history')renderHistory();
 }));
 
