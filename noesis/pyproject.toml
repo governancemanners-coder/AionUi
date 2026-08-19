@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "noesis"
+version = "0.1.0"
+description = "A knowledge-holder and memory agent harness with a unified multi-provider LLM layer (subscription + BYOK)."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "Kaelus" }]
+keywords = ["agent", "memory", "llm", "harness", "reasoning", "byok"]
+
+# Runtime is deliberately STDLIB-ONLY so the harness runs on Termux/Android
+# with zero compiled dependencies. Everything heavy is an optional extra with
+# a pure-Python fallback.
+dependencies = []
+
+[project.optional-dependencies]
+# Richer embeddings / vector search on capable machines.
+vectors = ["numpy>=1.24.0", "sentence-transformers>=2.2.2", "chromadb>=0.4.18"]
+# Nicer terminal UI for the REPL.
+cli = ["rich>=13.7.0"]
+# Config files in YAML (JSON always works without this).
+yaml = ["pyyaml>=6.0.1"]
+dev = ["pytest>=7.4.0", "pytest-cov>=4.1.0"]
+
+[project.scripts]
+noesis = "noesis.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["noesis*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
